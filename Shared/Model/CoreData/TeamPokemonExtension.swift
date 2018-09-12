@@ -6,7 +6,7 @@
 //  Copyright © 2018 Nick Cracchiolo. All rights reserved.
 //
 
-import UIKit
+import Foundation
 
 extension TeamPokemon {
     func allIvs() -> [String:Int16] {

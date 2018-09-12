@@ -9,17 +9,28 @@
 import Foundation
 
 extension Pokemon {
+    struct SortDescriptor {
+        static let order = NSSortDescriptor(key: "order", ascending: true)
+        static let name = NSSortDescriptor(key: "name", ascending: true)
+        static let totalBaseStats = NSSortDescriptor(key: "totalBaseStats", ascending: true)
+    }
+    
+    func getStats() -> [PokemonStat] {
+        return self.stats?.allObjects as? [PokemonStat] ?? []
+    }
+    
+    func getAbilities() -> [PokemonAbility] {
+        return self.abilities?.allObjects as? [PokemonAbility] ?? []
+    }
+    
     func moves(forMethodName method:String) -> [PokemonMove] {
         let vg = UserDefaults.standard.integer(forKey: "VersionGroup")
         let mvs = self.moves?.allObjects as? [PokemonMove] ?? []
-        print("Moves Count: \(mvs.count)")
         let vgMoves = mvs.filter { (m) -> Bool in
             let versions = m.versionGroupDetails?.allObjects as? [PokemonMoveVersion] ?? []
-            print("Move Version Count: \(versions.count)")
             let filter = versions.filter({ (mv) -> Bool in
                 return mv.versionGroup?.id ?? -1 == vg
             })
-            print("Filtered Version Count: \(filter.count)")
             return true
         }
         return vgMoves

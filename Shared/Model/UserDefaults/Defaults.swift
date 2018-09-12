@@ -11,6 +11,7 @@ import Foundation
 struct Defaults {
     static let generation = "Generation"
     static let versionGroup = "VersionGroup"
+    static let firstOpen = "FirstOpen"
     
     static func setDefaults() {
         let defaultsURL = Bundle.main.url(forResource: "DefaultPreferences", withExtension: "plist")

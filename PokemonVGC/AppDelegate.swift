@@ -12,11 +12,20 @@ import UIKit
 class AppDelegate: UIResponder, UIApplicationDelegate {
 
     var window: UIWindow?
+    var manager = CoreDataManager(withModelName: "Pokedex")
 
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         // Override point for customization after application launch.
         Defaults.setDefaults()
+        //print(NSPersistentContainer.defaultDirectoryURL().relativePath)
+        if UserDefaults.standard.integer(forKey: Defaults.firstOpen) == 0 {
+            CoreDataManager.preloadDBData()
+            UserDefaults.standard.set(1, forKey: Defaults.firstOpen)
+        }
+        let window = self.window!
+        let navVC = window.rootViewController as! TabBarController
+        navVC.coreDataManager = manager
         return true
     }
 
