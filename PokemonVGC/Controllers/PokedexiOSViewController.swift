@@ -31,7 +31,12 @@ class PokedexiOSViewController: UIViewController {
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "PokedexToPokemonSegue" {
             if let vc = segue.destination as? PokemonViewController, let i = self.tableView.indexPathForSelectedRow {
-                vc.species = self.dataModel.fetchedResultsController.object(at: i).species!
+                if let results = searchResults {
+                    vc.species = results[i.row].species!
+                } else {
+                    vc.species = self.dataModel.fetchedResultsController.object(at: i).species!
+                }
+                    
             }
         }
     }
