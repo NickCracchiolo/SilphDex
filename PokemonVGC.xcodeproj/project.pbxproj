@@ -87,6 +87,8 @@
 		7AA05548214839EF00D314CF /* DamageClassExt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AA05547214839EF00D314CF /* DamageClassExt.swift */; };
 		7AA0554A2148EEEA00D314CF /* DamageCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AA055492148EEEA00D314CF /* DamageCalculator.swift */; };
 		7AA0554B2148EEEA00D314CF /* DamageCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AA055492148EEEA00D314CF /* DamageCalculator.swift */; };
+		7AC9C15F214DBC2500C4A83E /* VideoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AC9C15E214DBC2500C4A83E /* VideoViewController.swift */; };
+		7AE9633F2151749800FC9337 /* CGImageExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AE9633E2151749800FC9337 /* CGImageExtension.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -151,6 +153,8 @@
 		7AA055422148397300D314CF /* DamageClassExt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DamageClassExt.swift; sourceTree = "<group>"; };
 		7AA05547214839EF00D314CF /* DamageClassExt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DamageClassExt.swift; sourceTree = "<group>"; };
 		7AA055492148EEEA00D314CF /* DamageCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DamageCalculator.swift; sourceTree = "<group>"; };
+		7AC9C15E214DBC2500C4A83E /* VideoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoViewController.swift; sourceTree = "<group>"; };
+		7AE9633E2151749800FC9337 /* CGImageExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CGImageExtension.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -323,6 +327,7 @@
 				7AA055012142F98200D314CF /* TabBarController.swift */,
 				7A6FCA8D21372FC5009F5690 /* PokedexiOSViewController.swift */,
 				7AA0551B214484B400D314CF /* PokemonViewController.swift */,
+				7AC9C15E214DBC2500C4A83E /* VideoViewController.swift */,
 				7AA054F421404BDA00D314CF /* VisionViewController.swift */,
 			);
 			path = Controllers;
@@ -350,6 +355,7 @@
 			children = (
 				7AA055042142FB9000D314CF /* UITableViewCellExtension.swift */,
 				7AA055212145A50C00D314CF /* UICollectionViewCellExtension.swift */,
+				7AE9633E2151749800FC9337 /* CGImageExtension.swift */,
 			);
 			path = "UIKit Extensions";
 			sourceTree = "<group>";
@@ -522,6 +528,7 @@
 				7A6FCA8E21372FC5009F5690 /* PokedexiOSViewController.swift in Sources */,
 				7AA054F92140500A00D314CF /* PokemonModel.mlmodel in Sources */,
 				7AA05539214825A000D314CF /* AbilityExtension.swift in Sources */,
+				7AC9C15F214DBC2500C4A83E /* VideoViewController.swift in Sources */,
 				7AA054FC21406AD500D314CF /* PokedexCell.swift in Sources */,
 				7AA0552A2145B7C500D314CF /* MoveCell.swift in Sources */,
 				7AA055242145AC8500D314CF /* FormCollectionCell.swift in Sources */,
@@ -543,6 +550,7 @@
 				7AA055002140821A00D314CF /* PokemonSortDescriptors.swift in Sources */,
 				7AA055332146D2D800D314CF /* TypeCollectionCell.swift in Sources */,
 				7AA055052142FB9000D314CF /* UITableViewCellExtension.swift in Sources */,
+				7AE9633F2151749800FC9337 /* CGImageExtension.swift in Sources */,
 				7AA054FE21407F8E00D314CF /* PokedexDataModel.swift in Sources */,
 				7AA0553C214829D400D314CF /* MoveExtension.swift in Sources */,
 				7A6FCAD7213743DE009F5690 /* CloudKitManager.swift in Sources */,
@@ -737,7 +745,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 77TV63F6JF;
 				INFOPLIST_FILE = PokemonVGC/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -756,7 +764,7 @@
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = 77TV63F6JF;
 				INFOPLIST_FILE = PokemonVGC/Info.plist;
-				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
