@@ -18,27 +18,40 @@ class PokedexCell: UITableViewCell {
     func setup(withDexEntry dex:PokemonSpeciesDexEntry) {
         let species = dex.species!
         self.nameLabel.text = species.getName(forLocale: "en")
-        if let front = species.getDefaultVariety()?.sprites?.frontDefault {
+        let defaultPokemon = species.getDefaultVariety()
+        if let front = defaultPokemon?.sprites?.frontDefault {
             self.spriteView.image = UIImage(data: front)
         }
         self.sortLabel.text = "\(dex.entryNumber)"
-        if let pokemon = species.getDefaultVariety() {
+        if let pokemon = defaultPokemon {
             self.type1Label.isHidden = false
             self.type2Label.isHidden = false
-            let types = pokemon.getTypes()
-            if types.count > 0 {
-                self.type1Label.typing = Typing(withName: types[0].type?.name ?? "normal")
-                if types.count > 1 {
-                    if let type2 = types[1].type?.name {
-                        self.type2Label.typing = Typing(withName: type2)
-                    } else {
-                        self.type2Label.isHidden = true
-                    }
+            setupTypes(withTypes: pokemon.getTypes())
+        } else {
+            hideTypeLabels()
+        }
+    }
+    
+    func setup(withPokemon p:Pokemon) {
+        self.nameLabel.text = p.name?.capitalize(letter: 1)
+        if let front = p.sprites?.frontDefault {
+            self.spriteView.image = UIImage(data: front)
+        }
+        setupTypes(withTypes: p.getTypes())
+        self.sortLabel.isHidden = true
+    }
+    
+    private func setupTypes(withTypes types:[PokemonType]) {
+        if types.count > 0 {
+            self.type1Label.typing = Typing(withName: types[0].type?.name ?? "normal")
+            if types.count > 1 {
+                if let type2 = types[1].type?.name {
+                    self.type2Label.typing = Typing(withName: type2)
                 } else {
                     self.type2Label.isHidden = true
                 }
             } else {
-                hideTypeLabels()
+                self.type2Label.isHidden = true
             }
         } else {
             hideTypeLabels()

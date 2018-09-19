@@ -32,4 +32,8 @@ extension Ability {
         }
         return nil
     }
+    
+    func getPokemon() -> [PokemonAbility] {
+        return (self.pokemon?.allObjects as? [PokemonAbility] ?? []).sorted(by: {$0.pokemon!.id < $1.pokemon!.id})
+    }
 }

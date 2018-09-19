@@ -13,7 +13,7 @@ import CoreML
 
 
 class VisionViewController: VideoViewController {
-    
+    var coreDataManager:CoreDataManager!
     private var detectionOverlay: CALayer! = nil
     
     // Vision parts
@@ -54,7 +54,7 @@ class VisionViewController: VideoViewController {
         let model = try! VNCoreMLModel(for: PokemonModel().model)
         let classificationRequest = VNCoreMLRequest(model: model, completionHandler: { (request, error) in
             if let results = request.results as? [VNClassificationObservation] {
-                if let result = results.first, result.confidence >= 0.99 {
+                if let result = results.first {
                     print("\(result.identifier) : \(result.confidence)")
                 }
             }

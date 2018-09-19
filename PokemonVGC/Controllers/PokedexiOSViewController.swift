@@ -17,6 +17,8 @@ class PokedexiOSViewController: UITableViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        let nib = UINib(nibName: "PokedexCell", bundle: nil)
+        self.tableView.register(nib, forCellReuseIdentifier: PokedexCell.identifier)
         setupSearchController()
         self.pokedexNames = dataModel.pokedexNames()
         pokedexNames.insert("National", at: 0)
@@ -105,6 +107,9 @@ class PokedexiOSViewController: UITableViewController {
 }
 
 extension PokedexiOSViewController {
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        self.performSegue(withIdentifier: "PokedexToPokemonSegue", sender: nil)
+    }
     override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 72
     }

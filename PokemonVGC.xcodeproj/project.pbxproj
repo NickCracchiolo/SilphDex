@@ -89,6 +89,9 @@
 		7AC9C15F214DBC2500C4A83E /* VideoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AC9C15E214DBC2500C4A83E /* VideoViewController.swift */; };
 		7AE9633F2151749800FC9337 /* CGImageExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AE9633E2151749800FC9337 /* CGImageExtension.swift */; };
 		7AE963432152B10000FC9337 /* PokemonModel.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = 7AE963422152B10000FC9337 /* PokemonModel.mlmodel */; };
+		7AE963452152D61300FC9337 /* EffectCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AE963442152D61300FC9337 /* EffectCell.swift */; };
+		7AE963472152D85A00FC9337 /* PokedexCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 7AE963462152D85A00FC9337 /* PokedexCell.xib */; };
+		7AE963492152DA7E00FC9337 /* AbilityViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AE963482152DA7E00FC9337 /* AbilityViewController.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -155,6 +158,9 @@
 		7AC9C15E214DBC2500C4A83E /* VideoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoViewController.swift; sourceTree = "<group>"; };
 		7AE9633E2151749800FC9337 /* CGImageExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CGImageExtension.swift; sourceTree = "<group>"; };
 		7AE963422152B10000FC9337 /* PokemonModel.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; name = PokemonModel.mlmodel; path = ../../../../Documents/PokemonModel.mlmodel; sourceTree = "<group>"; };
+		7AE963442152D61300FC9337 /* EffectCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EffectCell.swift; sourceTree = "<group>"; };
+		7AE963462152D85A00FC9337 /* PokedexCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = PokedexCell.xib; sourceTree = "<group>"; };
+		7AE963482152DA7E00FC9337 /* AbilityViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AbilityViewController.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -329,6 +335,7 @@
 				7AA0551B214484B400D314CF /* PokemonViewController.swift */,
 				7AC9C15E214DBC2500C4A83E /* VideoViewController.swift */,
 				7AA054F421404BDA00D314CF /* VisionViewController.swift */,
+				7AE963482152DA7E00FC9337 /* AbilityViewController.swift */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";
@@ -336,6 +343,7 @@
 		7AA054FA21406A1C00D314CF /* Cells */ = {
 			isa = PBXGroup;
 			children = (
+				7AE963462152D85A00FC9337 /* PokedexCell.xib */,
 				7AA054FB21406AD500D314CF /* PokedexCell.swift */,
 				7AA055232145AC8500D314CF /* FormCollectionCell.swift */,
 				7AA055272145B7AD00D314CF /* AbilityCell.swift */,
@@ -346,6 +354,7 @@
 				7AA055322146D2D800D314CF /* TypeCollectionCell.swift */,
 				7AA0553421481BF500D314CF /* CollectionViewCell.swift */,
 				7AA0553621481D1000D314CF /* StatCell.swift */,
+				7AE963442152D61300FC9337 /* EffectCell.swift */,
 			);
 			path = Cells;
 			sourceTree = "<group>";
@@ -483,6 +492,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7AE963472152D85A00FC9337 /* PokedexCell.xib in Resources */,
 				7A6FCA9621372FC6009F5690 /* LaunchScreen.storyboard in Resources */,
 				7A6FCADB21374472009F5690 /* DefaultPreferences.plist in Resources */,
 				7AA055122143250100D314CF /* Pokedex.sqlite in Resources */,
@@ -524,6 +534,7 @@
 				7AA0552F2145BD5800D314CF /* CollectionCell.swift in Sources */,
 				7A6FCAC02137327B009F5690 /* PokemonExtension.swift in Sources */,
 				7AA0554A2148EEEA00D314CF /* DamageCalculator.swift in Sources */,
+				7AE963492152DA7E00FC9337 /* AbilityViewController.swift in Sources */,
 				7AA055432148397300D314CF /* DamageClassExt.swift in Sources */,
 				7A6FCA8E21372FC5009F5690 /* PokedexiOSViewController.swift in Sources */,
 				7AA05539214825A000D314CF /* AbilityExtension.swift in Sources */,
@@ -547,6 +558,7 @@
 				7AA0553721481D1000D314CF /* StatCell.swift in Sources */,
 				7AA055282145B7AD00D314CF /* AbilityCell.swift in Sources */,
 				7AA055192143A96C00D314CF /* PokedexScope.swift in Sources */,
+				7AE963452152D61300FC9337 /* EffectCell.swift in Sources */,
 				7AA055002140821A00D314CF /* PokemonSortDescriptors.swift in Sources */,
 				7AA055332146D2D800D314CF /* TypeCollectionCell.swift in Sources */,
 				7AA055052142FB9000D314CF /* UITableViewCellExtension.swift in Sources */,

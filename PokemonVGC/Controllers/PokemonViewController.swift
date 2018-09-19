@@ -68,7 +68,15 @@ class PokemonViewController: UITableViewController {
         self.navigationItem.title = self.species.getName(forLocale: "en")
     }
     
-    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "PokemonToAbilitySegue" {
+            print("In Segue")
+            if let vc = segue.destination as? AbilityViewController, let i = self.tableView.indexPathForSelectedRow {
+                print("Segue vc")
+                vc.ability = self.abilities[i.row].ability!
+            }
+        }
+    }
 }
 
 
