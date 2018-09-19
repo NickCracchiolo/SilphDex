@@ -8,8 +8,7 @@
 
 import UIKit
 
-class PokedexiOSViewController: UIViewController {
-    @IBOutlet weak var tableView: UITableView!
+class PokedexiOSViewController: UITableViewController {
     
     var dataModel:PokedexDataModel!
     var pokedexNames:[String] = []
@@ -18,8 +17,6 @@ class PokedexiOSViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.tableView.delegate = self
-        self.tableView.dataSource = self
         setupSearchController()
         self.pokedexNames = dataModel.pokedexNames()
         pokedexNames.insert("National", at: 0)
@@ -107,18 +104,18 @@ class PokedexiOSViewController: UIViewController {
     }
 }
 
-extension PokedexiOSViewController: UITableViewDelegate, UITableViewDataSource {
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return 44
+extension PokedexiOSViewController {
+    override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 72
     }
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         if let results = searchResults {
             return results.count
         }
         return dataModel.fetchedResultsController.fetchedObjects?.count ?? 0
     }
     
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         if let cell = tableView.dequeueReusableCell(withIdentifier: PokedexCell.identifier) as? PokedexCell {
             var dex:PokemonSpeciesDexEntry?
             if let d = searchResults?[indexPath.row] {

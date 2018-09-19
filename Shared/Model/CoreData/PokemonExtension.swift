@@ -23,6 +23,10 @@ extension Pokemon {
         return self.abilities?.allObjects as? [PokemonAbility] ?? []
     }
     
+    func getTypes() -> [PokemonType] {
+        return self.types?.allObjects as? [PokemonType] ?? []
+    }
+    
     func moves(forMethodName method:String) -> [PokemonMove] {
         let vg = UserDefaults.standard.integer(forKey: "VersionGroup")
         let mvs = self.moves?.allObjects as? [PokemonMove] ?? []

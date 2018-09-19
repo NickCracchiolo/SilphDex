@@ -13,118 +13,146 @@ import CoreML
 
 
 class VisionViewController: VideoViewController {
-    @IBOutlet weak var classificationLabel: UILabel!
     
-    var coreDataManager:CoreDataManager!
     private var detectionOverlay: CALayer! = nil
     
     // Vision parts
-    private var requests = [VNRequest]()
+    private var analysisRequests = [VNRequest]()
+    private let sequenceRequestHandler = VNSequenceRequestHandler()
     
-    lazy var classificationRequest: VNCoreMLRequest = {
-        do {
-            let model = try VNCoreMLModel(for: PokemonModel().model)
-            
-            let request = VNCoreMLRequest(model: model, completionHandler: { [weak self] request, error in
-                self?.processClassifications(for: request, error: error)
-            })
-            request.imageCropAndScaleOption = .centerCrop
-            return request
-        } catch {
-            fatalError("Failed to load Vision ML model: \(error)")
-        }
-    }()
+    // Registration history
+    private let maximumHistoryLength = 15
+    private var transpositionHistoryPoints: [CGPoint] = [ ]
+    private var previousPixelBuffer: CVPixelBuffer?
     
-    /// - Tag: PerformRequests
-    func updateClassifications(for image: UIImage) {
-        classificationLabel.text = "Classifying..."
-        
-        let orientation = CGImagePropertyOrientation(image.imageOrientation)
-        guard let ciImage = CIImage(image: image) else { fatalError("Unable to create \(CIImage.self) from \(image).") }
-        
-        DispatchQueue.global(qos: .userInitiated).async {
-            let handler = VNImageRequestHandler(ciImage: ciImage, orientation: orientation)
-            do {
-                try handler.perform([self.classificationRequest])
-            } catch {
-                /*
-                 This handler catches general image processing errors. The `classificationRequest`'s
-                 completion handler `processClassifications(_:error:)` catches errors specific
-                 to processing that request.
-                 */
-                print("Failed to perform classification.\n\(error.localizedDescription)")
-            }
-        }
-    }
+    // The current pixel buffer undergoing analysis. Run requests in a serial fashion, one after another.
+    private var currentlyAnalyzedPixelBuffer: CVPixelBuffer?
     
-    func processClassifications(for request: VNRequest, error: Error?) {
-        DispatchQueue.main.async {
-            guard let results = request.results else {
-                self.classificationLabel.text = "Unable to classify image.\n\(error?.localizedDescription ?? "no description")"
+    // Queue for dispatching vision classification and barcode requests
+    private let visionQueue = DispatchQueue(label: "com.example.apple-samplecode.FlowerShop.serialVisionQueue")
+    var productViewOpen = false
+    
+    fileprivate func showProductInfo(_ identifier: String) {
+        // Perform all UI updates on the main queue.
+        DispatchQueue.main.async(execute: {
+            if self.productViewOpen {
+                // Bail out early if another observation already opened the product display.
                 return
             }
-            // The `results` will always be `VNClassificationObservation`s, as specified by the Core ML model in this project.
-            let classifications = results as! [VNClassificationObservation]
-            
-            if classifications.isEmpty {
-                self.classificationLabel.text = "Nothing recognized."
-            } else {
-                // Display top classifications ranked by confidence in the UI.
-                let topClassifications = classifications.prefix(2).filter( {$0.confidence >= 0.9} )
-                
-                let descriptions = topClassifications.map { classification in
-                    // Formats the classification for display; e.g. "(0.37) cliff, drop, drop-off".
-                    return String(format: "  (%.2f) %@", classification.confidence, classification.identifier)
-                }
-                print("Classification:\n" + descriptions.joined(separator: "\n"))
-                self.classificationLabel.text = "Classification:\n" + descriptions.joined(separator: "\n")
-            }
-        }
+            self.productViewOpen = true
+            self.performSegue(withIdentifier: "showProductSegue", sender: identifier)
+        })
     }
     
+    /// - Tag: SetupVisionRequest
     func setupVision() {
-        self.requests = [classificationRequest]
+        // Setup Vision parts.
+        self.analysisRequests.append(createClassificationRequest())
     }
     
-    func drawVisionRequestResults(_ results: [Any]) {
-        CATransaction.begin()
-        CATransaction.setValue(kCFBooleanTrue, forKey: kCATransactionDisableActions)
-        detectionOverlay.sublayers = nil // remove all the old recognized objects
-        for observation in results where observation is VNClassificationObservation {
-            guard let objectObservation = observation as? VNClassificationObservation else {
-                continue
+    private func createClassificationRequest() -> VNCoreMLRequest {
+        let model = try! VNCoreMLModel(for: PokemonModel().model)
+        let classificationRequest = VNCoreMLRequest(model: model, completionHandler: { (request, error) in
+            if let results = request.results as? [VNClassificationObservation] {
+                if let result = results.first, result.confidence >= 0.99 {
+                    print("\(result.identifier) : \(result.confidence)")
+                }
             }
-            // Select only the label with the highest confidence.
-            //let topLabelObservation = objectObservation.
-            //print(objectObservation.labels)
-            print("Observation: \(objectObservation.identifier), with confidence: \(objectObservation.confidence)")
-//            let objectBounds = VNImageRectForNormalizedRect(objectObservation., Int(bufferSize.width), Int(bufferSize.height))
-//
-//            let shapeLayer = self.createRoundedRectLayerWithBounds(objectBounds)
-//
-//            let textLayer = self.createTextSubLayerInBounds(objectBounds,
-//                                                            identifier: topLabelObservation.identifier,
-//                                                            confidence: topLabelObservation.confidence)
-//            shapeLayer.addSublayer(textLayer)
-//            detectionOverlay.addSublayer(shapeLayer)
-        }
-        self.updateLayerGeometry()
-        CATransaction.commit()
+        })
+        return classificationRequest
     }
     
+    /// - Tag: AnalyzeImage
+    private func analyzeCurrentImage() {
+        // Most computer vision tasks are not rotation-agnostic, so it is important to pass in the orientation of the image with respect to device.
+        let orientation = exifOrientationFromDeviceOrientation()
+        
+        let requestHandler = VNImageRequestHandler(cvPixelBuffer: currentlyAnalyzedPixelBuffer!, orientation: orientation)
+        visionQueue.async {
+            do {
+                // Release the pixel buffer when done, allowing the next buffer to be processed.
+                defer { self.currentlyAnalyzedPixelBuffer = nil }
+                try requestHandler.perform(self.analysisRequests)
+            } catch {
+                print("Error: Vision request failed with error \"\(error)\"")
+            }
+        }
+    }
+    fileprivate func resetTranspositionHistory() {
+        transpositionHistoryPoints.removeAll()
+    }
+    
+    fileprivate func recordTransposition(_ point: CGPoint) {
+        transpositionHistoryPoints.append(point)
+        
+        if transpositionHistoryPoints.count > maximumHistoryLength {
+            transpositionHistoryPoints.removeFirst()
+        }
+    }
+    /// - Tag: CheckSceneStability
+    fileprivate func sceneStabilityAchieved() -> Bool {
+        // Determine if we have enough evidence of stability.
+        if transpositionHistoryPoints.count == maximumHistoryLength {
+            // Calculate the moving average.
+            var movingAverage: CGPoint = CGPoint.zero
+            for currentPoint in transpositionHistoryPoints {
+                movingAverage.x += currentPoint.x
+                movingAverage.y += currentPoint.y
+            }
+            let distance = abs(movingAverage.x) + abs(movingAverage.y)
+            if distance < 20 {
+                return true
+            }
+        }
+        return false
+    }
     override func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
         guard let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else {
             return
         }
         
-        let exifOrientation = exifOrientationFromDeviceOrientation()
-        
-        let imageRequestHandler = VNImageRequestHandler(cvPixelBuffer: pixelBuffer, orientation: exifOrientation, options: [:])
-        do {
-            try imageRequestHandler.perform(self.requests)
-        } catch {
-            print(error)
+        guard previousPixelBuffer != nil else {
+            previousPixelBuffer = pixelBuffer
+            self.resetTranspositionHistory()
+            return
         }
+        
+        if productViewOpen {
+            return
+        }
+        let registrationRequest = VNTranslationalImageRegistrationRequest(targetedCVPixelBuffer: pixelBuffer)
+        do {
+            try sequenceRequestHandler.perform([ registrationRequest ], on: previousPixelBuffer!)
+        } catch let error as NSError {
+            print("Failed to process request: \(error.localizedDescription).")
+            return
+        }
+        
+        previousPixelBuffer = pixelBuffer
+        
+        if let results = registrationRequest.results {
+            if let alignmentObservation = results.first as? VNImageTranslationAlignmentObservation {
+                let alignmentTransform = alignmentObservation.alignmentTransform
+                self.recordTransposition(CGPoint(x: alignmentTransform.tx, y: alignmentTransform.ty))
+            }
+        }
+        if self.sceneStabilityAchieved() {
+            showDetectionOverlay(true)
+            if currentlyAnalyzedPixelBuffer == nil {
+                // Retain the image buffer for Vision processing.
+                currentlyAnalyzedPixelBuffer = pixelBuffer
+                analyzeCurrentImage()
+            }
+        } else {
+            showDetectionOverlay(false)
+        }
+    }
+    
+    private func showDetectionOverlay(_ visible: Bool) {
+        DispatchQueue.main.async(execute: {
+            // perform all the UI updates on the main queue
+            self.detectionOverlay.isHidden = !visible
+        })
     }
     
     override func setupAVCapture() {
@@ -132,7 +160,6 @@ class VisionViewController: VideoViewController {
         
         // setup Vision parts
         setupLayers()
-        updateLayerGeometry()
         setupVision()
         
         // start the capture
@@ -140,62 +167,13 @@ class VisionViewController: VideoViewController {
     }
     
     func setupLayers() {
-        detectionOverlay = CALayer() // container layer that has all the renderings of the observations
-        detectionOverlay.name = "DetectionOverlay"
-        detectionOverlay.bounds = CGRect(x: 0.0, y: 0.0, width: bufferSize.width, height: bufferSize.height)
-        detectionOverlay.position = CGPoint(x: rootLayer.bounds.midX, y: rootLayer.bounds.midY)
+        detectionOverlay = CALayer()
+        detectionOverlay.bounds = self.view.bounds.insetBy(dx: 40, dy: 100)
+        detectionOverlay.position = CGPoint(x: self.view.bounds.midX, y: self.view.bounds.midY)
+        detectionOverlay.borderColor = CGColor(colorSpace: CGColorSpaceCreateDeviceRGB(), components: [1.0, 1.0, 0.2, 0.7])
+        detectionOverlay.borderWidth = 8
+        detectionOverlay.cornerRadius = 20
+        detectionOverlay.isHidden = true
         rootLayer.addSublayer(detectionOverlay)
     }
-    
-    func updateLayerGeometry() {
-        let bounds = rootLayer.bounds
-        var scale: CGFloat
-        
-        let xScale: CGFloat = bounds.size.width / bufferSize.height
-        let yScale: CGFloat = bounds.size.height / bufferSize.width
-        
-        scale = fmax(xScale, yScale)
-        if scale.isInfinite {
-            scale = 1.0
-        }
-        CATransaction.begin()
-        CATransaction.setValue(kCFBooleanTrue, forKey: kCATransactionDisableActions)
-        
-        // rotate the layer into screen orientation and scale and mirror
-        detectionOverlay.setAffineTransform(CGAffineTransform(rotationAngle: CGFloat(.pi / 2.0)).scaledBy(x: scale, y: -scale))
-        // center the layer
-        detectionOverlay.position = CGPoint (x: bounds.midX, y: bounds.midY)
-        
-        CATransaction.commit()
-        
-    }
-    
-    func createTextSubLayerInBounds(_ bounds: CGRect, identifier: String, confidence: VNConfidence) -> CATextLayer {
-        let textLayer = CATextLayer()
-        textLayer.name = "Object Label"
-        let formattedString = NSMutableAttributedString(string: String(format: "\(identifier)\nConfidence:  %.2f", confidence))
-        let largeFont = UIFont(name: "Helvetica", size: 24.0)!
-        formattedString.addAttributes([NSAttributedString.Key.font: largeFont], range: NSRange(location: 0, length: identifier.count))
-        textLayer.string = formattedString
-        textLayer.bounds = CGRect(x: 0, y: 0, width: bounds.size.height - 10, height: bounds.size.width - 10)
-        textLayer.position = CGPoint(x: bounds.midX, y: bounds.midY)
-        textLayer.shadowOpacity = 0.7
-        textLayer.shadowOffset = CGSize(width: 2, height: 2)
-        textLayer.foregroundColor = CGColor(colorSpace: CGColorSpaceCreateDeviceRGB(), components: [0.0, 0.0, 0.0, 1.0])
-        textLayer.contentsScale = 2.0 // retina rendering
-        // rotate the layer into screen orientation and scale and mirror
-        textLayer.setAffineTransform(CGAffineTransform(rotationAngle: CGFloat(.pi / 2.0)).scaledBy(x: 1.0, y: -1.0))
-        return textLayer
-    }
-    
-    func createRoundedRectLayerWithBounds(_ bounds: CGRect) -> CALayer {
-        let shapeLayer = CALayer()
-        shapeLayer.bounds = bounds
-        shapeLayer.position = CGPoint(x: bounds.midX, y: bounds.midY)
-        shapeLayer.name = "Found Object"
-        shapeLayer.backgroundColor = CGColor(colorSpace: CGColorSpaceCreateDeviceRGB(), components: [1.0, 1.0, 0.2, 0.4])
-        shapeLayer.cornerRadius = 7
-        return shapeLayer
-    }
-    
 }

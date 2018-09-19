@@ -12,6 +12,8 @@ class PokedexCell: UITableViewCell {
     @IBOutlet weak var spriteView: UIImageView!
     @IBOutlet weak var nameLabel: UILabel!
     @IBOutlet weak var sortLabel: UILabel!
+    @IBOutlet weak var type1Label: TypeLabel!
+    @IBOutlet weak var type2Label: TypeLabel!
     
     func setup(withDexEntry dex:PokemonSpeciesDexEntry) {
         let species = dex.species!
@@ -20,5 +22,30 @@ class PokedexCell: UITableViewCell {
             self.spriteView.image = UIImage(data: front)
         }
         self.sortLabel.text = "\(dex.entryNumber)"
+        if let pokemon = species.getDefaultVariety() {
+            self.type1Label.isHidden = false
+            self.type2Label.isHidden = false
+            let types = pokemon.getTypes()
+            if types.count > 0 {
+                self.type1Label.typing = Typing(withName: types[0].type?.name ?? "normal")
+                if types.count > 1 {
+                    if let type2 = types[1].type?.name {
+                        self.type2Label.typing = Typing(withName: type2)
+                    } else {
+                        self.type2Label.isHidden = true
+                    }
+                } else {
+                    self.type2Label.isHidden = true
+                }
+            } else {
+                hideTypeLabels()
+            }
+        } else {
+            hideTypeLabels()
+        }
+    }
+    private func hideTypeLabels() {
+        self.type1Label.isHidden = true
+        self.type2Label.isHidden = true
     }
 }

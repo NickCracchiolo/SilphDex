@@ -48,7 +48,6 @@
 		7A6FCAF0213B15EB009F5690 /* PokemonViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6FCAEF213B15EB009F5690 /* PokemonViewController.swift */; };
 		7A6FCAF2213C4D30009F5690 /* PokedexSplitController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A6FCAF1213C4D30009F5690 /* PokedexSplitController.swift */; };
 		7AA054F521404BDA00D314CF /* VisionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AA054F421404BDA00D314CF /* VisionViewController.swift */; };
-		7AA054F92140500A00D314CF /* PokemonModel.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = 7AA054F82140500A00D314CF /* PokemonModel.mlmodel */; };
 		7AA054FC21406AD500D314CF /* PokedexCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AA054FB21406AD500D314CF /* PokedexCell.swift */; };
 		7AA054FE21407F8E00D314CF /* PokedexDataModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AA054FD21407F8E00D314CF /* PokedexDataModel.swift */; };
 		7AA054FF21407F8E00D314CF /* PokedexDataModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AA054FD21407F8E00D314CF /* PokedexDataModel.swift */; };
@@ -89,6 +88,7 @@
 		7AA0554B2148EEEA00D314CF /* DamageCalculator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AA055492148EEEA00D314CF /* DamageCalculator.swift */; };
 		7AC9C15F214DBC2500C4A83E /* VideoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AC9C15E214DBC2500C4A83E /* VideoViewController.swift */; };
 		7AE9633F2151749800FC9337 /* CGImageExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7AE9633E2151749800FC9337 /* CGImageExtension.swift */; };
+		7AE963432152B10000FC9337 /* PokemonModel.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = 7AE963422152B10000FC9337 /* PokemonModel.mlmodel */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -125,7 +125,6 @@
 		7A6FCAEF213B15EB009F5690 /* PokemonViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PokemonViewController.swift; sourceTree = "<group>"; };
 		7A6FCAF1213C4D30009F5690 /* PokedexSplitController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PokedexSplitController.swift; sourceTree = "<group>"; };
 		7AA054F421404BDA00D314CF /* VisionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisionViewController.swift; sourceTree = "<group>"; };
-		7AA054F82140500A00D314CF /* PokemonModel.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = PokemonModel.mlmodel; sourceTree = "<group>"; };
 		7AA054FB21406AD500D314CF /* PokedexCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PokedexCell.swift; sourceTree = "<group>"; };
 		7AA054FD21407F8E00D314CF /* PokedexDataModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PokedexDataModel.swift; sourceTree = "<group>"; };
 		7AA055012142F98200D314CF /* TabBarController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabBarController.swift; sourceTree = "<group>"; };
@@ -155,6 +154,7 @@
 		7AA055492148EEEA00D314CF /* DamageCalculator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DamageCalculator.swift; sourceTree = "<group>"; };
 		7AC9C15E214DBC2500C4A83E /* VideoViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoViewController.swift; sourceTree = "<group>"; };
 		7AE9633E2151749800FC9337 /* CGImageExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CGImageExtension.swift; sourceTree = "<group>"; };
+		7AE963422152B10000FC9337 /* PokemonModel.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; name = PokemonModel.mlmodel; path = ../../../../Documents/PokemonModel.mlmodel; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -203,7 +203,7 @@
 				7AA055032142FB6B00D314CF /* UIKit Extensions */,
 				7AA055412148395500D314CF /* Pokemon Enum Extensions */,
 				7A6FCA9221372FC6009F5690 /* Assets.xcassets */,
-				7AA054F82140500A00D314CF /* PokemonModel.mlmodel */,
+				7AE963422152B10000FC9337 /* PokemonModel.mlmodel */,
 				7A6FCA9421372FC6009F5690 /* LaunchScreen.storyboard */,
 				7A6FCA9721372FC6009F5690 /* Info.plist */,
 			);
@@ -526,7 +526,6 @@
 				7AA0554A2148EEEA00D314CF /* DamageCalculator.swift in Sources */,
 				7AA055432148397300D314CF /* DamageClassExt.swift in Sources */,
 				7A6FCA8E21372FC5009F5690 /* PokedexiOSViewController.swift in Sources */,
-				7AA054F92140500A00D314CF /* PokemonModel.mlmodel in Sources */,
 				7AA05539214825A000D314CF /* AbilityExtension.swift in Sources */,
 				7AC9C15F214DBC2500C4A83E /* VideoViewController.swift in Sources */,
 				7AA054FC21406AD500D314CF /* PokedexCell.swift in Sources */,
@@ -542,6 +541,7 @@
 				7AA055022142F98200D314CF /* TabBarController.swift in Sources */,
 				7A6FCAC621373F65009F5690 /* CoreDataManager.swift in Sources */,
 				7A6FCAC4213732E0009F5690 /* String Extension.swift in Sources */,
+				7AE963432152B10000FC9337 /* PokemonModel.mlmodel in Sources */,
 				7AA054F521404BDA00D314CF /* VisionViewController.swift in Sources */,
 				7AA0551F2144BB1800D314CF /* Typing.swift in Sources */,
 				7AA0553721481D1000D314CF /* StatCell.swift in Sources */,

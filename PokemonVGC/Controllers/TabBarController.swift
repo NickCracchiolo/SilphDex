@@ -18,7 +18,7 @@ class TabBarController: UITabBarController {
                 if let vc = navVC.viewControllers.first as? PokedexiOSViewController {
                     vc.dataModel = PokedexDataModel(withCoreDataManager: self.coreDataManager)
                 } else if let vc = view as? VisionViewController {
-                    vc.coreDataManager = coreDataManager
+                    //vc.coreDataManager = coreDataManager
                 }
             }
         }
