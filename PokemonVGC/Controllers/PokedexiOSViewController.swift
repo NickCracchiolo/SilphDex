@@ -31,12 +31,12 @@ class PokedexiOSViewController: UITableViewController {
         
         for n in pokedexNames {
             let action = UIAlertAction(title: n, style: .default) { [weak self] (action) in
-                guard let s = self else { return }
+                guard let self = self else { return }
                 let predicate = CoreDataManager.pokedexPredicate(forPokedex: n.lowercased())
-                s.dataModel.updateController(ascending: true, key: "entryNumber", predicate: predicate)
-                s.navigationItem.title = "\(n) Pokedex"
+                self.dataModel.updateController(ascending: true, key: "entryNumber", predicate: predicate)
+                self.navigationItem.title = "\(n) Pokedex"
                 DispatchQueue.main.async {
-                    s.tableView.reloadData()
+                    self.tableView.reloadData()
                 }
             }
             alert.addAction(action)
