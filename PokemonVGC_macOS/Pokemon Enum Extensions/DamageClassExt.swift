@@ -13,11 +13,11 @@ extension DamageClass {
     func image() -> NSImage {
         switch self {
         case .physical:
-            return NSImage(named: "PhysicalMove")!
+            return NSImage(named: "physical")!
         case .special:
-            return NSImage(named: "SpecialMove")!
+            return NSImage(named: "special")!
         case .status:
-            return NSImage(named: "StatusMove")!
+            return NSImage(named: "status")!
         }
     }
 }

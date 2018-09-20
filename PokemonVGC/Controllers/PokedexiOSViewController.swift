@@ -17,30 +17,16 @@ class PokedexiOSViewController: UITableViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        let nib = UINib(nibName: "PokedexCell", bundle: nil)
-        self.tableView.register(nib, forCellReuseIdentifier: PokedexCell.identifier)
+        registerCells()
         setupSearchController()
         self.pokedexNames = dataModel.pokedexNames()
         pokedexNames.insert("National", at: 0)
         let predicate = CoreDataManager.pokedexPredicate(forPokedex: pokedexNames.first?.lowercased() ?? "national")
-        self.navigationItem.title = "\(pokedexNames.first ?? "National") Pokedex"
+        setupNavigationBar()
         dataModel.updateController(ascending: true, key: "entryNumber", predicate: predicate)
     }
     
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == "PokedexToPokemonSegue" {
-            if let vc = segue.destination as? PokemonViewController, let i = self.tableView.indexPathForSelectedRow {
-                if let results = searchResults {
-                    vc.species = results[i.row].species!
-                } else {
-                    vc.species = self.dataModel.fetchedResultsController.object(at: i).species!
-                }
-                    
-            }
-        }
-    }
-    
-    @IBAction func pokedex(_ sender: UIBarButtonItem) {
+    @objc func pokedex(_ sender: UIBarButtonItem) {
         let alert = UIAlertController(title: "Pokedex", message: "Select a specific pokedex for this generation.", preferredStyle: .actionSheet)
         
         for n in pokedexNames {
@@ -61,6 +47,10 @@ class PokedexiOSViewController: UITableViewController {
         self.present(alert, animated: true, completion: nil)
     }
     
+    @objc func sort(_ sender:UIBarButtonItem) {
+        
+    }
+    
     private func setupSearchController() {
         self.searchController.searchResultsUpdater = self
         self.searchController.obscuresBackgroundDuringPresentation = false
@@ -71,6 +61,21 @@ class PokedexiOSViewController: UITableViewController {
         self.searchController.isActive = true
         self.navigationItem.searchController = searchController
         self.definesPresentationContext = true
+    }
+    
+    private func setupNavigationBar() {
+        let pokedexBtn = UIBarButtonItem(title: "Pokedex", style: .plain, target: self, action: #selector(pokedex(_:)))
+        self.navigationItem.leftBarButtonItem = pokedexBtn
+        let sortBtn = UIBarButtonItem(title: "Sort", style: .plain, target: self, action: #selector(sort(_:)))
+        self.navigationItem.rightBarButtonItem = sortBtn
+        self.navigationItem.title = "\(pokedexNames.first ?? "National") Pokedex"
+        self.navigationItem.largeTitleDisplayMode = .automatic
+        self.navigationController?.navigationBar.prefersLargeTitles = true
+    }
+    
+    private func registerCells() {
+        let nib = UINib(nibName: PokedexCell.identifier, bundle: nil)
+        self.tableView.register(nib, forCellReuseIdentifier: PokedexCell.identifier)
     }
     
     func isSearchBarEmpty() -> Bool {
@@ -108,7 +113,13 @@ class PokedexiOSViewController: UITableViewController {
 
 extension PokedexiOSViewController {
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        self.performSegue(withIdentifier: "PokedexToPokemonSegue", sender: nil)
+        let vc = PokemonViewController()
+        if let results = searchResults {
+            vc.species = results[indexPath.row].species!
+        } else {
+            vc.species = self.dataModel.fetchedResultsController.object(at: indexPath).species!
+        }
+        self.navigationController?.pushViewController(vc, animated: true)
     }
     override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 72

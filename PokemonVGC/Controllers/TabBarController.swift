@@ -10,19 +10,34 @@ import UIKit
 
 class TabBarController: UITabBarController {
     var coreDataManager:CoreDataManager!
+    lazy var dataModel = PokedexDataModel(withCoreDataManager: self.coreDataManager)
+    
+    lazy var pokedexTab: UINavigationController = {
+        let nav = UINavigationController()
+        let vc = PokedexiOSViewController()
+        vc.dataModel = self.dataModel
+        nav.viewControllers.append(vc)
+        return nav
+    }()
+    
+    lazy var visionTab: UINavigationController = {
+        let nav = UINavigationController()
+        let vc = VisionViewController()
+        vc.coreDataManager = self.coreDataManager
+        nav.viewControllers.append(vc)
+        return nav
+    }()
+    
+    lazy var settingsTab: UINavigationController = {
+        let nav = UINavigationController()
+        let vc = SettingsViewController()
+        nav.viewControllers.append(vc)
+        return nav
+    }()
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        for view in self.viewControllers ?? [] {
-            if let navVC = view as? UINavigationController {
-                if let vc = navVC.viewControllers.first as? PokedexiOSViewController {
-                    vc.dataModel = PokedexDataModel(withCoreDataManager: self.coreDataManager)
-                } else if let vc = view as? VisionViewController {
-                    vc.coreDataManager = coreDataManager
-                }
-            }
-        }
+        self.viewControllers = [self.pokedexTab, self.visionTab, self.settingsTab]
     }
-    
     
 }

@@ -19,7 +19,7 @@ class MoveCell: UITableViewCell {
     func setup(withMove move:PokemonMove) {
         self.nameLabel.text = move.move?.getName(forLocale: "en")
         self.typeLabel.typing = Typing(withName: move.move?.type?.name ?? "normal")
-        
+        self.damageClassImg.image = DamageClass(withName: move.move?.damageClass?.name ?? "status").image()
         if let pp = move.move?.pp, pp >= 0 {
             self.ppLabel.text = "PP: \(pp)"
         } else {

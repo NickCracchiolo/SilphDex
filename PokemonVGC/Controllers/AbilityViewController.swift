@@ -14,11 +14,21 @@ class AbilityViewController: UITableViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        let nib = UINib(nibName: "PokedexCell", bundle: nil)
-        self.tableView.register(nib, forCellReuseIdentifier: PokedexCell.identifier)
+        registerCells()
+        
         self.navigationItem.title = self.ability.getName(forLocale: "en")
         
     }
+    
+    private func registerCells() {
+        let nib1 = UINib(nibName: "PokedexCell", bundle: nil)
+        self.tableView.register(nib1, forCellReuseIdentifier: PokedexCell.identifier)
+        let nib2 = UINib(nibName: "EffectCell", bundle: nil)
+        self.tableView.register(nib2, forCellReuseIdentifier: EffectCell.identifier)
+    }
+    
+}
+extension AbilityViewController {
     override func numberOfSections(in tableView: UITableView) -> Int {
         return 2
     }

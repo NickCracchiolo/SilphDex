@@ -11,8 +11,16 @@ import UIKit
 class CollectionCell: UITableViewCell {
     @IBOutlet weak var collectionView: UICollectionView!
     
-    func setup(withDelegate delegate:UICollectionViewDelegate, dataSource:UICollectionViewDataSource) {
+    func setup(withDelegate delegate:UICollectionViewDelegate, dataSource:UICollectionViewDataSource, tag:Int, cellId:String?) {
         collectionView.delegate = delegate
         collectionView.dataSource = dataSource
+        collectionView.tag = tag
+        
+        if let id = cellId {
+            let nib = UINib(nibName: id, bundle: nil)
+            collectionView.register(nib, forCellWithReuseIdentifier: id)
+        }
     }
+    
+    
 }

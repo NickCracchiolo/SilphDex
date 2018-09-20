@@ -57,6 +57,7 @@ class PokemonViewController: UITableViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        registerCells()
         self.pokemon = species.getDefaultVariety()!
         self.varieties = species.getVarieties()
         self.abilities = pokemon.getAbilities()
@@ -66,22 +67,54 @@ class PokemonViewController: UITableViewController {
         let types = pokemon.types?.allObjects as? [PokemonType] ?? []
         self.typeDamages = DamageCalculator.calculateMultipliers(forType1: types[0].type!, t2: types.last?.type)
         self.navigationItem.title = self.species.getName(forLocale: "en")
+        self.navigationItem.largeTitleDisplayMode = .automatic
     }
     
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == "PokemonToAbilitySegue" {
-            print("In Segue")
-            if let vc = segue.destination as? AbilityViewController, let i = self.tableView.indexPathForSelectedRow {
-                print("Segue vc")
-                vc.ability = self.abilities[i.row].ability!
-            }
-        }
+    private func registerCells() {
+        self.tableView.register(UINib(nibName: PokemonSpriteCell.identifier, bundle: nil), forCellReuseIdentifier: PokemonSpriteCell.identifier)
+        self.tableView.register(UINib(nibName: CollectionCell.identifier, bundle: nil), forCellReuseIdentifier: CollectionCell.identifier)
+        self.tableView.register(UINib(nibName: AbilityCell.identifier, bundle: nil), forCellReuseIdentifier: AbilityCell.identifier)
+        self.tableView.register(UINib(nibName: StatCell.identifier, bundle: nil), forCellReuseIdentifier: StatCell.identifier)
+        self.tableView.register(UINib(nibName: MoveCell.identifier, bundle: nil), forCellReuseIdentifier: MoveCell.identifier)
     }
 }
 
 
 //// MARK: UITableViewDelegate and UITableViewDataSource methods
 extension PokemonViewController {
+    
+    override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        if let s = Sections(rawValue: indexPath.section) {
+            switch s {
+            case .info:
+                return self.tableView.estimatedRowHeight
+            case .damageRelations:
+                return 60
+            case .evolutions:
+                return 91
+            case .abilities:
+                return self.tableView.estimatedRowHeight
+            case .baseStats:
+                return self.tableView.estimatedRowHeight
+            case .moves:
+                return self.tableView.estimatedRowHeight
+            }
+        }
+        return 0
+    }
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        if let s = Sections(rawValue: indexPath.section) {
+            switch s {
+            case .abilities:
+                let vc = AbilityViewController()
+                vc.ability = self.abilities[indexPath.row].ability!
+                self.navigationController?.pushViewController(vc, animated: true)
+            default:
+                break
+            }
+        }
+    }
+    
     override func tableView(_ tableView: UITableView, titleForHeaderInSection section: Int) -> String? {
         if let s = Sections(rawValue: section) {
             return s.name()
@@ -146,14 +179,12 @@ extension PokemonViewController {
                     return UITableViewCell()
                 }
             case .damageRelations:
-                let cell = tableView.dequeueReusableCell(withIdentifier: "DamageRelationsCollectionCell" ) as! CollectionCell
-                cell.collectionView.tag = CollectionViews.damageRelations.rawValue
-                cell.setup(withDelegate: self, dataSource: self)
+                let cell = tableView.dequeueReusableCell(withIdentifier: CollectionCell.identifier) as! CollectionCell
+                cell.setup(withDelegate: self, dataSource: self, tag: CollectionViews.damageRelations.rawValue, cellId: TypeCollectionCell.identifier)
                 return cell
             case .evolutions:
                 let cell = tableView.dequeueReusableCell(withIdentifier: CollectionCell.identifier) as! CollectionCell
-                cell.collectionView.tag = CollectionViews.evolutions.rawValue
-                cell.setup(withDelegate: self, dataSource: self)
+                cell.setup(withDelegate: self, dataSource: self, tag: CollectionViews.evolutions.rawValue, cellId: FormCollectionCell.identifier)
                 return cell
             case .abilities:
                 let cell = tableView.dequeueReusableCell(withIdentifier: AbilityCell.identifier) as! AbilityCell
@@ -194,7 +225,7 @@ extension PokemonViewController {
     }
 }
 
-extension PokemonViewController: UICollectionViewDelegate, UICollectionViewDataSource {
+extension PokemonViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if let col = CollectionViews(rawValue: collectionView.tag) {
             switch col {
@@ -231,5 +262,17 @@ extension PokemonViewController: UICollectionViewDelegate, UICollectionViewDataS
         return UICollectionViewCell()
     }
     
-    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        if let col = CollectionViews(rawValue: collectionView.tag) {
+            switch col {
+            case .forms:
+                return CGSize(width: 72, height: 91)
+            case .damageRelations:
+                return CGSize(width: 86, height: 60)
+            case .evolutions:
+                return CGSize(width: 72, height: 91)
+            }
+        }
+        return CGSize.zero
+    }
 }
