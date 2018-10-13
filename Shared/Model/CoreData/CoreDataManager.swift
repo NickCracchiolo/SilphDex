@@ -84,10 +84,10 @@ class CoreDataManager {
     }
     
     func getObjects(withName name:String) -> [NSManagedObject] {
-        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: name)
+        let fetchRequest = NSFetchRequest<NSManagedObject>(entityName: name)
         do {
             let results = try self.persistentContainer.viewContext.fetch(fetchRequest)
-            return (results as? [NSManagedObject]) ?? []
+            return results
         } catch {
             print("NSManagedObject Array Fetch Request Failed with error: \(error.localizedDescription)")
             return []
@@ -95,36 +95,33 @@ class CoreDataManager {
     }
     
     func getPokedexNames() -> [String] {
-        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: Entity.pokedex)
+        let fetchRequest = NSFetchRequest<Pokedex>(entityName: Entity.pokedex)
         let vg = UserDefaults.standard.integer(forKey: "VersionGroup")
         let predicate = NSPredicate(format: "SUBQUERY(versionGroups, $x, $x.id == %d).@count > 0", vg)
         fetchRequest.predicate = predicate
         do {
             let results = try self.persistentContainer.viewContext.fetch(fetchRequest)
-            if let dexes = results as? [Pokedex] {
-                var names:[String] = []
-                for d in dexes {
-                    if let n = d.name {
-                        names.append(n.capitalize(letter: 1))
-                    }
+            let dexes = results
+            var names:[String] = []
+            for d in dexes {
+                if let n = d.name {
+                    names.append(n.capitalize(letter: 1))
                 }
-                return names
-            } else {
-                return []
             }
+            return names
         } catch {
             return []
         }
     }
     
-    func getMoves(forPokemonID id:Int16, method:String) -> [PokemonMove] {
-        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: Entity.pokemonMove)
-        let predicate = NSPredicate(format: "pokemon.id == %d and SUBQUERY(versionGroupDetails, $x, $x.moveLearnMethod.name == %@).@count > 0", id, method)
+    func getMoves(forPokemonID id:Int16, method:MLM) -> [PokemonMove] {
+        let vg = UserDefaults.standard.integer(forKey: Defaults.versionGroup)
+        let fetchRequest = NSFetchRequest<PokemonMove>(entityName: Entity.pokemonMove)
+        let predicate = NSPredicate(format: "pokemon.id == %d AND SUBQUERY(versionGroupDetails, $x, $x.moveLearnMethod.id == %d AND $x.versionGroup.id == %d).@count > 0", id, method.rawValue, vg)
         fetchRequest.predicate = predicate
-        //let sorts = [NSSortDescriptor(key: "<#T##String?#>", ascending: <#T##Bool#>)]
         do {
             let results = try self.persistentContainer.viewContext.fetch(fetchRequest)
-            return (results as? [PokemonMove]) ?? []
+            return results
         } catch {
             print("NSManagedObject Array Fetch Request Failed with error: \(error.localizedDescription)")
             return []
@@ -132,12 +129,12 @@ class CoreDataManager {
     }
     
     func getNatures() -> [Nature] {
-        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: Entity.nature)
+        let fetchRequest = NSFetchRequest<Nature>(entityName: Entity.nature)
         let sorts = [NSSortDescriptor(key: "name", ascending: true)]
         fetchRequest.sortDescriptors = sorts
         do {
             let results = try self.persistentContainer.viewContext.fetch(fetchRequest)
-            return (results as? [Nature]) ?? []
+            return results
         } catch {
             print("Nature Array Fetch Request Failed with error: \(error.localizedDescription)")
             return []
@@ -145,13 +142,13 @@ class CoreDataManager {
     }
     
     func getTeams() -> [Team] {
-        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: Entity.team)
+        let fetchRequest = NSFetchRequest<Team>(entityName: Entity.team)
         let vg = UserDefaults.standard.integer(forKey: "VersionGroup")
         let predicate = NSPredicate(format: "versionGroup.id == %d", vg)
         fetchRequest.predicate = predicate
         do {
             let results = try self.persistentContainer.viewContext.fetch(fetchRequest)
-            return (results as? [Team]) ?? []
+            return results
         } catch {
             print("Nature Array Fetch Request Failed with error: \(error.localizedDescription)")
             return []
@@ -159,28 +156,41 @@ class CoreDataManager {
     }
     
     func getStat(forName name:String) -> Stat? {
-        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: Entity.stat)
+        let fetchRequest = NSFetchRequest<Stat>(entityName: Entity.stat)
         
         do {
             let results = try self.persistentContainer.viewContext.fetch(fetchRequest)
-            return (results as? [Stat] ?? []).first(where: { $0.name == name.lowercased() })
+            return results.first(where: { $0.name == name.lowercased() })
         } catch {
-            print("Nil Fetch Request Failed with error: \(error.localizedDescription)")
+            print("Stat for name Fetch Request Failed with error: \(error.localizedDescription)")
             return nil
         }
     }
     
     func getStats(isBattleOnly battle:Bool) -> [Stat] {
-        let fetchRequest = NSFetchRequest<NSFetchRequestResult>(entityName: Entity.stat)
+        let fetchRequest = NSFetchRequest<Stat>(entityName: Entity.stat)
         let predicate = NSPredicate(format: "isBattleOnly == %@", NSNumber(booleanLiteral: battle))
         fetchRequest.predicate = predicate
         let sorts = [NSSortDescriptor(key: "id", ascending: true)]
         fetchRequest.sortDescriptors = sorts
         do {
             let results = try self.persistentContainer.viewContext.fetch(fetchRequest)
-            return (results as? [Stat]) ?? []
+            return results
         } catch {
             print("Stat Array Fetch Request Failed with error: \(error.localizedDescription)")
+            return []
+        }
+    }
+    
+    func getMoveLearnMethods() -> [MoveLearnMethod] {
+        let fetchRequest = NSFetchRequest<MoveLearnMethod>(entityName: Entity.moveLearnMethod)
+        let sorts = [NSSortDescriptor(key: "id", ascending: true)]
+        fetchRequest.sortDescriptors = sorts
+        do {
+            let results = try self.persistentContainer.viewContext.fetch(fetchRequest)
+            return results
+        } catch {
+            print("MoveLearnMethod Array Fetch Request Failed with error: \(error.localizedDescription)")
             return []
         }
     }
@@ -200,5 +210,29 @@ class CoreDataManager {
     //Used to fetch PokedexEntry
     class func pokedexPredicate(forPokedex pkdex:String) -> NSPredicate {
         return NSPredicate(format: "pokedex.name == %@", pkdex)
+    }
+    
+    func allIVs(withValue val:Int16) -> [PokemonIV] {
+        var arr:[PokemonIV] = []
+        let statNames = ["hp", "attack", "defense", "special-attack", "special-defense", "speed"]
+        for name in statNames {
+            let iv = PokemonIV(context: self.persistentContainer.viewContext)
+            iv.stat = getStat(forName: name)
+            iv.value = val
+            arr.append(iv)
+        }
+        return arr
+    }
+    
+    func allEVs(withValue val:Int16) -> [PokemonEV] {
+        var arr:[PokemonEV] = []
+        let statNames = ["hp", "attack", "defense", "special-attack", "special-defense", "speed"]
+        for name in statNames {
+            let ev = PokemonEV(context: self.persistentContainer.viewContext)
+            ev.stat = getStat(forName: name)
+            ev.value = val
+            arr.append(ev)
+        }
+        return arr
     }
 }

@@ -1,23 +1,23 @@
 //
-//  AbilityViewController.swift
+//  MoveViewController.swift
 //  PokemonVGC
 //
-//  Created by Nick Cracchiolo on 9/19/18.
+//  Created by Nick Cracchiolo on 10/11/18.
 //  Copyright © 2018 Nick Cracchiolo. All rights reserved.
 //
 
 import UIKit
 
-class AbilityViewController: UITableViewController {
+class MoveViewController: UITableViewController {
     var coreDataManager:CoreDataManager!
-    var ability:Ability!
-    lazy var pokemon:[PokemonAbility] = self.ability.getPokemon()
+    var move:Move!
+    lazy var pokemon:[PokemonMove] = self.move.getPokemon()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         registerCells()
         
-        self.navigationItem.title = self.ability.getName(forLocale: "en")
+        self.navigationItem.title = self.move.getName(forLocale: "en")
         
     }
     
@@ -29,15 +29,7 @@ class AbilityViewController: UITableViewController {
     }
     
 }
-extension AbilityViewController {
-    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        if indexPath.section == 1, let p = self.pokemon[indexPath.row].pokemon {
-            let vc = PokemonViewController()
-            vc.species = p.species!
-            vc.pokemon = p
-            vc.coreDataManager = self.coreDataManager
-        }
-    }
+extension MoveViewController {
     override func numberOfSections(in tableView: UITableView) -> Int {
         return 2
     }
@@ -66,7 +58,7 @@ extension AbilityViewController {
         switch indexPath.section {
         case 0:
             let cell = self.tableView.dequeueReusableCell(withIdentifier: EffectCell.identifier) as! EffectCell
-            cell.effectLabel.text = self.ability.getEffect(forLocale: "en")
+            cell.effectLabel.text = self.move.getEffect(forLocale: "en")
             return cell
         case 1:
             let cell = self.tableView.dequeueReusableCell(withIdentifier: PokedexCell.identifier) as! PokedexCell

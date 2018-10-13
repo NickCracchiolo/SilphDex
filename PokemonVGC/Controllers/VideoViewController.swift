@@ -15,7 +15,7 @@ class VideoViewController:UIViewController, AVCaptureVideoDataOutputSampleBuffer
     var bufferSize: CGSize = .zero
     var rootLayer: CALayer! = nil
     
-    @IBOutlet weak private var previewView: UIView!
+    lazy private var previewView: UIView = self.view
     private let session = AVCaptureSession()
     private var previewLayer: AVCaptureVideoPreviewLayer! = nil
     private let videoDataOutput = AVCaptureVideoDataOutput()
@@ -29,6 +29,15 @@ class VideoViewController:UIViewController, AVCaptureVideoDataOutputSampleBuffer
     override func viewDidLoad() {
         super.viewDidLoad()
         setupAVCapture()
+    }
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        startCaptureSession()
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        session.stopRunning()
     }
     
     override func didReceiveMemoryWarning() {

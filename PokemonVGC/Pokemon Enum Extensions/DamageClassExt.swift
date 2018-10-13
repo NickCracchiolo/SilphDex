@@ -20,4 +20,15 @@ extension DamageClass {
             return UIImage(named: "status")!
         }
     }
+    
+    func color() -> UIColor {
+        switch self {
+        case .physical:
+            return UIColor(named: "PhysicalColor") ?? UIColor(red: 231.0/255.0, green: 94.0/255.0, blue: 63.0/255.0, alpha: 1.0)
+        case .special:
+            return UIColor(named: "SpecialColor") ?? UIColor(red: 87.0/255.0, green: 115.0/255.0, blue: 169.0/255.0, alpha: 1.0)
+        case .status:
+            return UIColor(named: "StatusColor") ?? UIColor(red: 172.0/255.0, green: 165.0/255.0, blue: 150.0/255.0, alpha: 1.0)
+        }
+    }
 }

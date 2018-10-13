@@ -18,4 +18,22 @@ extension Move {
             return self.name!.capitalize(letter: 1)
         }
     }
+    
+    func getShortEffect(forLocale locale:String) -> String? {
+        if let effects = self.effectEntries?.allObjects as? [VerboseEffect] {
+            return effects.first(where: { $0.language?.name == locale })?.shortEffect
+        }
+        return nil
+    }
+    
+    func getEffect(forLocale locale:String) -> String? {
+        if let effects = self.effectEntries?.allObjects as? [VerboseEffect] {
+            return effects.first(where: { $0.language?.name == locale })?.effect
+        }
+        return nil
+    }
+    
+    func getPokemon() -> [PokemonMove] {
+        return (self.pokemon?.allObjects as? [PokemonMove] ?? []).sorted(by: {$0.pokemon!.id < $1.pokemon!.id})
+    }
 }

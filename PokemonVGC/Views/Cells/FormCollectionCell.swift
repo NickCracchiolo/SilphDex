@@ -11,6 +11,7 @@ import UIKit
 class FormCollectionCell: UICollectionViewCell {
     @IBOutlet weak var spriteView: UIImageView!
     @IBOutlet weak var nameLabel: UILabel!
+    @IBOutlet weak var backView: UIView!
     
     func setup(withVariety variety: PokemonSpeciesVariety) {
         if let p = variety.pokemon {
@@ -31,5 +32,12 @@ class FormCollectionCell: UICollectionViewCell {
             self.spriteView.image = nil
             self.nameLabel.text = "--"
         }
+    }
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        backView.layer.cornerRadius = 5.0
+        backView.layer.borderWidth = 2.0
+        backView.layer.borderColor = UIColor.black.cgColor
     }
 }

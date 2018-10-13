@@ -27,7 +27,7 @@ extension Pokemon {
         return self.types?.allObjects as? [PokemonType] ?? []
     }
     
-    func moves(forMethodName method:String) -> [PokemonMove] {
+    func moves(forMethodName method:MLM) -> [PokemonMove] {
         let vg = UserDefaults.standard.integer(forKey: "VersionGroup")
         let mvs = self.moves?.allObjects as? [PokemonMove] ?? []
         let vgMoves = mvs.filter { (m) -> Bool in

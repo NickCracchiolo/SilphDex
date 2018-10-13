@@ -161,9 +161,6 @@ class VisionViewController: VideoViewController {
         // setup Vision parts
         setupLayers()
         setupVision()
-        
-        // start the capture
-        startCaptureSession()
     }
     
     func setupLayers() {

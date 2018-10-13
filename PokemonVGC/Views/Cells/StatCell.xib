@@ -17,28 +17,45 @@
                 <rect key="frame" x="0.0" y="0.0" width="375" height="43.5"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
-                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Special-Attack" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="EnR-YV-T90">
-                        <rect key="frame" x="16" y="13" width="101" height="18"/>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Sp.Att" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="EnR-YV-T90">
+                        <rect key="frame" x="16" y="13" width="51" height="18"/>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="51" id="RrR-wZ-qce"/>
+                        </constraints>
                         <fontDescription key="fontDescription" type="system" pointSize="15"/>
                         <nil key="textColor"/>
                         <nil key="highlightedColor"/>
                     </label>
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="700" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="3Vd-sy-Gci">
-                        <rect key="frame" x="331" y="13" width="28" height="18"/>
+                        <rect key="frame" x="322" y="13" width="37" height="18"/>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="37" id="7kv-Eq-Alh"/>
+                        </constraints>
                         <fontDescription key="fontDescription" type="system" weight="medium" pointSize="15"/>
                         <nil key="textColor"/>
                         <nil key="highlightedColor"/>
                     </label>
+                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="EgG-oI-FIE" customClass="StatBar" customModule="PokemonVGC" customModuleProvider="target">
+                        <rect key="frame" x="70" y="17" width="244" height="10"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="10" id="gzF-va-2K3"/>
+                        </constraints>
+                    </view>
                 </subviews>
                 <constraints>
                     <constraint firstItem="EnR-YV-T90" firstAttribute="leading" secondItem="I7z-sK-7Yk" secondAttribute="leading" constant="16" id="3pO-pU-bei"/>
                     <constraint firstAttribute="trailing" secondItem="3Vd-sy-Gci" secondAttribute="trailing" constant="16" id="HYv-qk-uXd"/>
                     <constraint firstItem="3Vd-sy-Gci" firstAttribute="centerY" secondItem="I7z-sK-7Yk" secondAttribute="centerY" id="WuD-fp-QAD"/>
+                    <constraint firstItem="EgG-oI-FIE" firstAttribute="leading" secondItem="EnR-YV-T90" secondAttribute="trailing" constant="3" id="fih-Wb-LZ9"/>
+                    <constraint firstItem="3Vd-sy-Gci" firstAttribute="leading" secondItem="EgG-oI-FIE" secondAttribute="trailing" constant="8" id="rt0-LW-F9S"/>
+                    <constraint firstItem="EgG-oI-FIE" firstAttribute="centerY" secondItem="I7z-sK-7Yk" secondAttribute="centerY" id="uZd-QZ-vLT"/>
                     <constraint firstItem="EnR-YV-T90" firstAttribute="centerY" secondItem="I7z-sK-7Yk" secondAttribute="centerY" id="yT5-4B-DTL"/>
                 </constraints>
             </tableViewCellContentView>
             <connections>
                 <outlet property="nameLabel" destination="EnR-YV-T90" id="rN6-cf-cfN"/>
+                <outlet property="statBar" destination="EgG-oI-FIE" id="PSk-7L-m37"/>
                 <outlet property="statLabel" destination="3Vd-sy-Gci" id="SFz-HQ-Smh"/>
             </connections>
             <point key="canvasLocation" x="68" y="121.4392803598201"/>

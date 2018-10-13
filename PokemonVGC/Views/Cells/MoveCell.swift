@@ -11,7 +11,7 @@ import UIKit
 class MoveCell: UITableViewCell {
     @IBOutlet weak var nameLabel: UILabel!
     @IBOutlet weak var typeLabel: TypeLabel!
-    @IBOutlet weak var damageClassImg: UIImageView!
+    @IBOutlet weak var damageClassView: UIView!
     @IBOutlet weak var ppLabel: UILabel!
     @IBOutlet weak var powerLabel: UILabel!
     @IBOutlet weak var accuracyLabel: UILabel!
@@ -19,7 +19,8 @@ class MoveCell: UITableViewCell {
     func setup(withMove move:PokemonMove) {
         self.nameLabel.text = move.move?.getName(forLocale: "en")
         self.typeLabel.typing = Typing(withName: move.move?.type?.name ?? "normal")
-        self.damageClassImg.image = DamageClass(withName: move.move?.damageClass?.name ?? "status").image()
+        let dmgClass = DamageClass(withName: move.move?.damageClass?.name ?? "status")
+        damageClassView.backgroundColor = dmgClass.color()
         if let pp = move.move?.pp, pp >= 0 {
             self.ppLabel.text = "PP: \(pp)"
         } else {

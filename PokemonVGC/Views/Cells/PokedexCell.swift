@@ -9,13 +9,30 @@
 import UIKit
 
 class PokedexCell: UITableViewCell {
+    weak var delegate:ForceTouchAlertDelegate?
+    weak var dex:PokemonSpeciesDexEntry?
     @IBOutlet weak var spriteView: UIImageView!
     @IBOutlet weak var nameLabel: UILabel!
     @IBOutlet weak var sortLabel: UILabel!
     @IBOutlet weak var type1Label: TypeLabel!
     @IBOutlet weak var type2Label: TypeLabel!
     
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        print("Cell touched")
+        if let touch = touches.first {
+            print("Touch Force: \(touch.force)")
+
+            if touch.force > 2.0 {
+                self.delegate?.didRecieveForceTouch(withObject: self.dex)
+            } else {
+                super.touchesBegan(touches, with: event)
+            }
+            
+        }
+    }
+    
     func setup(withDexEntry dex:PokemonSpeciesDexEntry) {
+        self.dex = dex
         let species = dex.species!
         self.nameLabel.text = species.getName(forLocale: "en")
         let defaultPokemon = species.getDefaultVariety()

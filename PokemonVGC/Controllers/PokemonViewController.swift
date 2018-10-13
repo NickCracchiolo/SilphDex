@@ -42,11 +42,13 @@ class PokemonViewController: UITableViewController {
     
     var moveSegmentControl: UISegmentedControl = {
         let seg = UISegmentedControl()
+        
         return seg
     }()
     
+    var coreDataManager:CoreDataManager!
     var species:PokemonSpecies!
-    var pokemon:Pokemon!
+    var pokemon:Pokemon?
     var varieties:[PokemonSpeciesVariety] = []
     var abilities:[PokemonAbility] = []
     var moves:[PokemonMove] = []
@@ -54,20 +56,44 @@ class PokemonViewController: UITableViewController {
     var evolutions:[ChainLink] = []
     var typeDamages:[String:Float] = [:]
     let orderedTypes = Typing.allCasesOrdered
+    var team:Team?
     
     override func viewDidLoad() {
         super.viewDidLoad()
         registerCells()
-        self.pokemon = species.getDefaultVariety()!
-        self.varieties = species.getVarieties()
-        self.abilities = pokemon.getAbilities()
-        self.moves = pokemon.moves(forMethodName: "level-up")
-        self.stats = pokemon.getStats()
-        self.evolutions = species.getEvolutionChain()
-        let types = pokemon.types?.allObjects as? [PokemonType] ?? []
-        self.typeDamages = DamageCalculator.calculateMultipliers(forType1: types[0].type!, t2: types.last?.type)
         self.navigationItem.title = self.species.getName(forLocale: "en")
         self.navigationItem.largeTitleDisplayMode = .automatic
+        addNavigationButtons()
+        speciesSetup()
+        pokemonSetup()
+    }
+    
+    private func speciesSetup() {
+        self.varieties = species.getVarieties()
+        self.evolutions = species.getEvolutionChain()
+    }
+    
+    private func pokemonSetup() {
+        if pokemon == nil {
+            self.pokemon = species.getDefaultVariety()
+        }
+        self.abilities = pokemon?.getAbilities() ?? []
+        if let p = pokemon {
+            self.moves = self.coreDataManager.getMoves(forPokemonID: p.id, method: MLM.levelUp)
+        }
+        self.moves.sort { (m1, m2) -> Bool in
+            let vg = UserDefaults.standard.integer(forKey: Defaults.versionGroup)
+            guard let v1 = (m1.versionGroupDetails?.allObjects as? [PokemonMoveVersion] ?? []).first(where: {($0.versionGroup?.id ?? 0) == vg}) else {
+                return false
+            }
+            guard let v2 = (m2.versionGroupDetails?.allObjects as? [PokemonMoveVersion] ?? []).first(where: {($0.versionGroup?.id ?? 0) == vg}) else {
+                return true
+            }
+            return v1.levelLearnedAt <= v2.levelLearnedAt
+        }
+        self.stats = pokemon?.getStats() ?? []
+        let types = pokemon?.types?.allObjects as? [PokemonType] ?? []
+        self.typeDamages = DamageCalculator.calculateMultipliers(forType1: types[0].type!, t2: types.last?.type)
     }
     
     private func registerCells() {
@@ -76,6 +102,76 @@ class PokemonViewController: UITableViewController {
         self.tableView.register(UINib(nibName: AbilityCell.identifier, bundle: nil), forCellReuseIdentifier: AbilityCell.identifier)
         self.tableView.register(UINib(nibName: StatCell.identifier, bundle: nil), forCellReuseIdentifier: StatCell.identifier)
         self.tableView.register(UINib(nibName: MoveCell.identifier, bundle: nil), forCellReuseIdentifier: MoveCell.identifier)
+    }
+    
+    private func addNavigationButtons() {
+        let addBtn = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(add(_:)))
+        let formBtn = UIBarButtonItem(title: "Form", style: .plain, target: self, action: #selector(changeForm(_:)))
+        self.navigationItem.rightBarButtonItems = [addBtn, formBtn]
+    }
+    
+    @objc func add(_ sender:UIBarButtonItem) {
+        let alert = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+        let addToTeam = UIAlertAction(title: "Add to Team", style: .default) { [weak self] (action) in
+            guard let self = self else { return }
+            if let t = self.team {
+                print("Adding to current team")
+                let p = TeamPokemon(context: self.coreDataManager.persistentContainer.viewContext)
+                p.pokemon = self.pokemon
+                p.name = self.pokemon?.name?.capitalize(letter: 1)
+                p.level = 50
+                p.nature = self.coreDataManager.getNatures().first
+                for iv in self.coreDataManager.allIVs(withValue: 31) {
+                    p.addToIvs(iv)
+                }
+                for ev in self.coreDataManager.allEVs(withValue: 0) {
+                    p.addToEvs(ev)
+                }
+                t.addToPokemon(p)
+                self.coreDataManager.saveContext()
+                if let vc = self.navigationController?.viewControllers.first(where: {$0 is TeamViewController}) {
+                    self.navigationController?.popToViewController(vc, animated: true)
+                } else {
+                    self.navigationController?.popToRootViewController(animated: true)
+                }
+            } else {
+                let vc = AddTeamViewController()
+                vc.coreDataManager = self.coreDataManager
+                vc.addingPokemon = self.pokemon
+                self.navigationController?.pushViewController(vc, animated: true)
+            }
+        }
+        alert.addAction(addToTeam)
+        let cancel = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+        alert.addAction(cancel)
+        alert.popoverPresentationController?.barButtonItem = sender
+        self.present(alert, animated: true, completion: nil)
+    }
+    
+    @objc func moveLearnMethodDidChange(_ sender:UISegmentedControl) {
+        switch sender.tag {
+        case 1:
+            break
+        case 2:
+            break
+        default:
+            break
+        }
+    }
+    
+    @objc func changeForm(_ sender:UIBarButtonItem) {
+        let alert = UIAlertController(title: "Change Form", message: nil, preferredStyle: .actionSheet)
+        alert.popoverPresentationController?.barButtonItem = sender
+        for v in self.varieties {
+            let a = UIAlertAction(title: v.pokemon?.name, style: .default) { [weak self] (action) in
+                guard let self = self else { return }
+                self.pokemon = v.pokemon
+                self.pokemonSetup()
+                self.tableView.reloadData()
+            }
+            alert.addAction(a)
+        }
+        self.present(alert, animated: true, completion: nil)
     }
 }
 
@@ -91,13 +187,13 @@ extension PokemonViewController {
             case .damageRelations:
                 return 60
             case .evolutions:
-                return 91
+                return 105
             case .abilities:
                 return self.tableView.estimatedRowHeight
             case .baseStats:
                 return self.tableView.estimatedRowHeight
             case .moves:
-                return self.tableView.estimatedRowHeight
+                return 72
             }
         }
         return 0
@@ -108,6 +204,12 @@ extension PokemonViewController {
             case .abilities:
                 let vc = AbilityViewController()
                 vc.ability = self.abilities[indexPath.row].ability!
+                vc.coreDataManager = self.coreDataManager
+                self.navigationController?.pushViewController(vc, animated: true)
+            case .moves:
+                let vc = MoveViewController()
+                vc.move = self.moves[indexPath.row].move!
+                vc.coreDataManager = self.coreDataManager
                 self.navigationController?.pushViewController(vc, animated: true)
             default:
                 break
@@ -121,7 +223,17 @@ extension PokemonViewController {
         }
         return nil
     }
-    
+    override func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        if let s = Sections(rawValue: section) {
+            switch s {
+            case .moves:
+                return 60
+            default:
+                return 0
+            }
+        }
+        return 0
+    }
     override func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         if let s = Sections(rawValue: section) {
             switch s {
@@ -136,7 +248,28 @@ extension PokemonViewController {
             case .baseStats:
                 return nil
             case .moves:
-                return moveSegmentControl
+                let view = UIView(frame: CGRect(x: 0, y: 0, width: self.view.bounds.width, height: 60))
+                view.backgroundColor = UIColor.white
+                let seg1 = UISegmentedControl(frame: CGRect(x: 0, y: 0, width: self.view.bounds.width, height: 30))
+                var i = 0
+                let cases = MLM.allCases
+                while i <= (cases.count / 2) {
+                    seg1.insertSegment(withTitle: cases[i].displayName(), at: i, animated: false)
+                    i += 1
+                }
+                seg1.tag = 1
+                seg1.selectedSegmentIndex = 0
+                seg1.addTarget(self, action: #selector(moveLearnMethodDidChange(_:)), for: .valueChanged)
+                let seg2 = UISegmentedControl(frame: CGRect(x: 0, y: 30, width: self.view.bounds.width, height: 30))
+                while i < cases.count {
+                    seg2.insertSegment(withTitle: cases[i].displayName(), at: i, animated: false)
+                    i += 1
+                }
+                seg2.tag = 2
+                seg2.addTarget(self, action: #selector(moveLearnMethodDidChange(_:)), for: .valueChanged)
+                view.addSubview(seg1)
+                view.addSubview(seg2)
+                return view
             }
         }
         return nil
@@ -172,9 +305,12 @@ extension PokemonViewController {
             case .info:
                 switch indexPath.row {
                 case 0:
-                    let cell = tableView.dequeueReusableCell(withIdentifier: PokemonSpriteCell.identifier) as! PokemonSpriteCell
-                    cell.setup(forPokemon: self.pokemon)
-                    return cell
+                    if let p = self.pokemon {
+                        let cell = tableView.dequeueReusableCell(withIdentifier: PokemonSpriteCell.identifier) as! PokemonSpriteCell
+                        cell.setup(forPokemon: p)
+                        return cell
+                    }
+                    return UITableViewCell()
                 default:
                     return UITableViewCell()
                 }
@@ -212,7 +348,7 @@ extension PokemonViewController {
                     let stat = self.stats.first { $0.stat?.name == "speed" }!
                     cell.setup(forStat: stat)
                 default:
-                    cell.setup(forName: "Total", value: Int(self.pokemon.totalBaseStats))
+                    cell.setup(forName: "Total", value: Int(self.pokemon?.totalBaseStats ?? 0))
                 }
                 return cell
             case .moves:
@@ -226,6 +362,28 @@ extension PokemonViewController {
 }
 
 extension PokemonViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        if let col = CollectionViews(rawValue: collectionView.tag) {
+            switch col {
+            case .forms:
+                let vc = PokemonViewController()
+                let v = self.varieties[indexPath.row]
+                vc.coreDataManager = self.coreDataManager
+                vc.pokemon = v.pokemon!
+                vc.species = v.species!
+                vc.coreDataManager = self.coreDataManager
+                self.navigationController?.pushViewController(vc, animated: true)
+            case .damageRelations:
+                return
+            case .evolutions:
+                let vc = PokemonViewController()
+                vc.coreDataManager = self.coreDataManager
+                vc.species = self.evolutions[indexPath.row].species!
+                vc.coreDataManager = self.coreDataManager
+                self.navigationController?.pushViewController(vc, animated: true)
+            }
+        }
+    }
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         if let col = CollectionViews(rawValue: collectionView.tag) {
             switch col {
@@ -266,11 +424,11 @@ extension PokemonViewController: UICollectionViewDelegate, UICollectionViewDataS
         if let col = CollectionViews(rawValue: collectionView.tag) {
             switch col {
             case .forms:
-                return CGSize(width: 72, height: 91)
+                return CGSize(width: 87, height: 105)
             case .damageRelations:
                 return CGSize(width: 86, height: 60)
             case .evolutions:
-                return CGSize(width: 72, height: 91)
+                return CGSize(width: 87, height: 105)
             }
         }
         return CGSize.zero
