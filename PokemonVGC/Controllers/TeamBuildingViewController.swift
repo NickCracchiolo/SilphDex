@@ -10,8 +10,8 @@ import UIKit
 
 class TeamBuildingViewController: UITableViewController {
     var coreDataManager:CoreDataManager!
-    lazy var teams:[Team] = self.coreDataManager.getObjects(withName: "Team") as? [Team] ?? []
-    lazy var teamPokemon:[TeamPokemon] = self.coreDataManager.getObjects(withName: "TeamPokemon") as? [TeamPokemon] ?? []
+    var teams:[Team] = []
+    var teamPokemon:[TeamPokemon] = []
     let headerTitles:[String] = ["Teams", "Created Pokemon"]
     
     override func viewDidLoad() {
@@ -22,6 +22,8 @@ class TeamBuildingViewController: UITableViewController {
     
     override func viewDidAppear(_ animated: Bool) {
         super.viewDidAppear(animated)
+        self.teams = self.coreDataManager.getTeams()
+        self.teamPokemon = self.coreDataManager.getTeamPokemon()
         self.tableView.reloadData()
     }
     
@@ -83,7 +85,10 @@ extension TeamBuildingViewController {
             vc.team = teams[indexPath.row]
             self.navigationController?.pushViewController(vc, animated: true)
         case 1:
-            break
+            let vc = CompetativePokemonViewController()
+            vc.teamPokemon = self.teamPokemon[indexPath.row]
+            vc.coreDataManager = self.coreDataManager
+            self.navigationController?.pushViewController(vc, animated: true)
         default:
             break
         }

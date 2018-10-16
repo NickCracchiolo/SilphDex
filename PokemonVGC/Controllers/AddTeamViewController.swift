@@ -33,7 +33,7 @@ extension AddTeamViewController {
             
             break
         default:
-            let t = teams[indexPath.row]
+            let t = teams[indexPath.row - 1]
             if (t.pokemon?.count ?? 0) == 6 {
                 let alert = UIAlertController(title: "Team Full!", message: "The team is already full, would you like to replace a Pokemon?", preferredStyle: .alert)
                 let yes = UIAlertAction(title: "Yes", style: .default) { (action) in
@@ -46,8 +46,16 @@ extension AddTeamViewController {
             } else {
                 let tp = TeamPokemon(context: self.coreDataManager.persistentContainer.viewContext)
                 tp.pokemon = self.addingPokemon
+                tp.name = self.addingPokemon?.name?.capitalize(letter: 1)
+                for ev in coreDataManager.allEVs(withValue: 0) {
+                    tp.addToEvs(ev)
+                }
+                for iv in coreDataManager.allIVs(withValue: 31) {
+                    tp.addToIvs(iv)
+                }
                 t.addToPokemon(tp)
                 self.coreDataManager.saveContext()
+                //Alert user that pokemon was added to the team
             }
         }
     }

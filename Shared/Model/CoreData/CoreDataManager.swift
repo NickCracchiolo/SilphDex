@@ -143,14 +143,28 @@ class CoreDataManager {
     
     func getTeams() -> [Team] {
         let fetchRequest = NSFetchRequest<Team>(entityName: Entity.team)
-        let vg = UserDefaults.standard.integer(forKey: "VersionGroup")
-        let predicate = NSPredicate(format: "versionGroup.id == %d", vg)
-        fetchRequest.predicate = predicate
+        //let vg = UserDefaults.standard.integer(forKey: "VersionGroup")
+        //let predicate = NSPredicate(format: "versionGroup.id == %d", vg)
+        //fetchRequest.predicate = predicate
         do {
             let results = try self.persistentContainer.viewContext.fetch(fetchRequest)
             return results
         } catch {
-            print("Nature Array Fetch Request Failed with error: \(error.localizedDescription)")
+            print("Team Array Fetch Request Failed with error: \(error.localizedDescription)")
+            return []
+        }
+    }
+    
+    func getTeamPokemon() -> [TeamPokemon] {
+        let fetchRequest = NSFetchRequest<TeamPokemon>(entityName: Entity.teamPokemon)
+        //let vg = UserDefaults.standard.integer(forKey: "VersionGroup")
+        //let predicate = NSPredicate(format: "versionGroup.id == %d", vg)
+        //fetchRequest.predicate = predicate
+        do {
+            let results = try self.persistentContainer.viewContext.fetch(fetchRequest)
+            return results
+        } catch {
+            print("Team Pokemon Array Fetch Request Failed with error: \(error.localizedDescription)")
             return []
         }
     }

@@ -106,46 +106,46 @@ class PokemonViewController: UITableViewController {
     
     private func addNavigationButtons() {
         let addBtn = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(add(_:)))
-        let formBtn = UIBarButtonItem(title: "Form", style: .plain, target: self, action: #selector(changeForm(_:)))
+        let formBtn = UIBarButtonItem(title: "Forms", style: .plain, target: self, action: #selector(changeForm(_:)))
         self.navigationItem.rightBarButtonItems = [addBtn, formBtn]
     }
     
     @objc func add(_ sender:UIBarButtonItem) {
-        let alert = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
-        let addToTeam = UIAlertAction(title: "Add to Team", style: .default) { [weak self] (action) in
-            guard let self = self else { return }
-            if let t = self.team {
-                print("Adding to current team")
-                let p = TeamPokemon(context: self.coreDataManager.persistentContainer.viewContext)
-                p.pokemon = self.pokemon
-                p.name = self.pokemon?.name?.capitalize(letter: 1)
-                p.level = 50
-                p.nature = self.coreDataManager.getNatures().first
-                for iv in self.coreDataManager.allIVs(withValue: 31) {
-                    p.addToIvs(iv)
-                }
-                for ev in self.coreDataManager.allEVs(withValue: 0) {
-                    p.addToEvs(ev)
-                }
-                t.addToPokemon(p)
-                self.coreDataManager.saveContext()
-                if let vc = self.navigationController?.viewControllers.first(where: {$0 is TeamViewController}) {
-                    self.navigationController?.popToViewController(vc, animated: true)
-                } else {
-                    self.navigationController?.popToRootViewController(animated: true)
-                }
+        if let t = self.team {
+            print("Adding to current team")
+            let p = TeamPokemon(context: self.coreDataManager.persistentContainer.viewContext)
+            p.pokemon = self.pokemon
+            p.name = self.pokemon?.name?.capitalize(letter: 1)
+            p.level = 50
+            p.nature = self.coreDataManager.getNatures().first
+            for iv in self.coreDataManager.allIVs(withValue: 31) {
+                p.addToIvs(iv)
+            }
+            for ev in self.coreDataManager.allEVs(withValue: 0) {
+                p.addToEvs(ev)
+            }
+            t.addToPokemon(p)
+            self.coreDataManager.saveContext()
+            if let vc = self.navigationController?.viewControllers.first(where: {$0 is TeamViewController}) {
+                self.navigationController?.popToViewController(vc, animated: true)
             } else {
+                self.navigationController?.popToRootViewController(animated: true)
+            }
+        } else {
+            let alert = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+            let addToTeam = UIAlertAction(title: "Add to Team", style: .default) { [weak self] (action) in
+                guard let self = self else { return }
                 let vc = AddTeamViewController()
                 vc.coreDataManager = self.coreDataManager
                 vc.addingPokemon = self.pokemon
                 self.navigationController?.pushViewController(vc, animated: true)
             }
+            alert.addAction(addToTeam)
+            let cancel = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
+            alert.addAction(cancel)
+            alert.popoverPresentationController?.barButtonItem = sender
+            self.present(alert, animated: true, completion: nil)
         }
-        alert.addAction(addToTeam)
-        let cancel = UIAlertAction(title: "Cancel", style: .cancel, handler: nil)
-        alert.addAction(cancel)
-        alert.popoverPresentationController?.barButtonItem = sender
-        self.present(alert, animated: true, completion: nil)
     }
     
     @objc func moveLearnMethodDidChange(_ sender:UISegmentedControl) {
@@ -223,17 +223,18 @@ extension PokemonViewController {
         }
         return nil
     }
-    override func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        if let s = Sections(rawValue: section) {
-            switch s {
-            case .moves:
-                return 60
-            default:
-                return 0
-            }
-        }
-        return 0
-    }
+//    override func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+//        if let s = Sections(rawValue: section) {
+//            switch s {
+//            case .moves:
+//                return 60
+//            default:
+//                return 0
+//            }
+//        }
+//        return 0
+//    }
+    /*
     override func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         if let s = Sections(rawValue: section) {
             switch s {
@@ -273,7 +274,7 @@ extension PokemonViewController {
             }
         }
         return nil
-    }
+    } */
     
     override func numberOfSections(in tableView: UITableView) -> Int {
         return Sections.allCases.count

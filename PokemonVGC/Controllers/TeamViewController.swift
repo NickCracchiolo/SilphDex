@@ -76,6 +76,10 @@ extension TeamViewController: UICollectionViewDelegateFlowLayout {
         if let p = pokemon[indexPath.row] {
             // segue to pokemon view
             print("Load saved pokemon")
+            let vc = CompetativePokemonViewController()
+            vc.coreDataManager = self.coreDataManager
+            vc.teamPokemon = p
+            self.navigationController?.pushViewController(vc, animated: true)
         } else {
             // segue to add a new pokemon
             print("Create new pokemon")
